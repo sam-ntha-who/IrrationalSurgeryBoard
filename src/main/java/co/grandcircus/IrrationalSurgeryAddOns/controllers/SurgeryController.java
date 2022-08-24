@@ -37,14 +37,17 @@ public class SurgeryController {
 		return ex.getMessage();
 	}
 
-//	@ResponseBody
-//	@ExceptionHandler(SurgeonNotFoundException.class)
-//	@ResponseStatus(HttpStatus.NOT_FOUND)
-//	String SurgeonNotFoundHandler(SurgeonNotFoundException ex) {
-//		return ex.getMessage();
-//	}
+	/*	
+	 * @ResponseBody
+	 * @ExceptionHandler(SurgeonNotFoundException.class)
+	 * 	@ResponseStatus(HttpStatus.NOT_FOUND)
+	 * 	String SurgeonNotFoundHandler(SurgeonNotFoundException ex) {
+	 * 	return ex.getMessage();
+	 * 	}
+	 */
 
-	// working
+// reset data
+	
 	@GetMapping("/reset")
 	public String reset() {
 		// delete first
@@ -80,36 +83,40 @@ public class SurgeryController {
 		return "Data reset.";
 	}
 
-// show all (cRud) working
+// show all surgical cases
+	
 	@GetMapping("/surgery")
 	public List<SurgicalCase> showAllSurgeries() {
 		return surgeryDepot.findAll();
 	}
 
-// show one	(cRud) working
+// show one	surgical case
+	
 	@GetMapping("/surgery/{id}")
 	public SurgicalCase showOneCase(@PathVariable String id) {
 		return surgeryDepot.findById(id).orElseThrow(() -> new SurgeryNotFoundException(id));
 
 	}
-	// show all for surgeon (cRud) needs work
+// show all for surgeon - needs work
 
-	// @GetMapping("/surgery/{surgeon}")
-	// public Optional<SurgicalCase> showAllForSurgeon(@PathVariable String surgeon)
-	// {
-	// return surgeryDepot.findBySurgeon(surgeon);
-	//
-	// }
-
-	// update one by id (crUd) working
+   /* @GetMapping("/surgery/{surgeon}")
+	* public Optional<SurgicalCase> showAllForSurgeon(@PathVariable String surgeon)
+	* {
+	* return surgeryDepot.findBySurgeon(surgeon);
+	*
+	* }
+	*/
+	
+// update one case by id 
+	
 	@PutMapping("/surgery/{id}")
 	public SurgicalCase updateOne(@PathVariable String id, @RequestBody SurgicalCase surgery) {
 
 		return surgeryDepot.save(surgery);
 	}
 
-	// works for updating single field
-	// needs access for updating multiple fields at once (probably
+// update one case by field
+	
 	@PatchMapping("/surgery/{id}")
 	public SurgicalCase updateField(@PathVariable String id, @RequestParam(required = false) String surgeon,
 			@RequestParam(required = false) String name, @RequestParam(required = false) String dateOfBirth,
@@ -121,6 +128,10 @@ public class SurgeryController {
 
 		SurgicalCase surgery = surgeryDepot.findById(id).get();
 
+	   /* works for updating single field
+		* needs to build out for updating multiple fields at once 
+		*/
+		
 		if (surgeon != null) {
 			surgery.setSurgeon(surgeon);
 		} else if (name != null) {
@@ -145,27 +156,45 @@ public class SurgeryController {
 
 		return surgeryDepot.save(surgery);
 	}
-	// create one (Crud) working
-	// need to be able to increment or decrement the surgery add on number as it
-	// changes
+	
+// create one surgical case
 
 	@PostMapping("/surgery")
 	@ResponseStatus(HttpStatus.CREATED)
 	public SurgicalCase create(@RequestBody SurgicalCase surgery) {
 
+		// increment surgery add on number as it changes
+		
 		Integer tfbNum = (int) surgeryDepot.count() + 1;
 		surgery.setToFollowBoardOrder(tfbNum);
 
+		// build this to also allow for emergency surgery that has to be bumped to the #1 spot
+		
 		return surgeryDepot.insert(surgery);
 	}
 
-// delete one (cruD) working
+// delete one case
+	
 	@DeleteMapping("/surgery/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void removeCase(@PathVariable String id) {
+		
+		// try to build out option that automatically decrements surgical toFollowBoardOrder for cases after 
+		
+		Integer tfbNum = surgeryDepot.findById(id).get().getToFollowBoardOrder();
+		
 		surgeryDepot.deleteById(id);
-
+		
+		// toFollowBoardOrder decrementer 
+		
+		for (SurgicalCase surgery : surgeryDepot.findAll()) {
+			if (surgery.getToFollowBoardOrder() > tfbNum) {
+				surgery.setToFollowBoardOrder(surgery.getToFollowBoardOrder() - 1);
+				surgeryDepot.save(surgery);
+			}
+		}
+		
 	}
 
-// 
+
 }

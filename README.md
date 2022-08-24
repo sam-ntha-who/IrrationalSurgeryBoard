@@ -91,19 +91,20 @@
 1. Create a GET endpoint that will allow users to retrieve all surgeries
 	a. endpoint: /surgery
 	b. response code: 200 (OK)
-	c. response body: a JSON array of all pets
-2. Create a GET endpoint that will allow users to retrieve an surgical case by id
+	c. response body: a JSON array of all surgical cases
+2. Create a GET endpoint that will allow users to retrieve a surgical case by id
 	a. endpoint: /surgery/{id}
    	b. if found:
 		i. response code: 200 (OK)
-		ii. response body: a JSON object of pet
+		ii. response body: a JSON object of surgical case
    	c. if not found:
 		i. response code: 404 (Not Found)
-		ii. response body: "Surgical encounter not found"
+		ii. response body: "Surgical Case: ###### not found"
 3. Create a POST endpoint that will allow users to create a new surgical case
 	a. endpoint: /surgery/{id}
 	b. response code: 201 (Created)
 	c. response body: JSON object of created surgical case (with ID)
+	d. display correct toFollowBoardOrder 
 4. Create a PUT endpoint that will allow users to update an existing surgical case description by ID
 	a. /surgery/{id}
 	b. response code: 200 (OK)
@@ -116,4 +117,12 @@
 	a. /surgery/{id}
 	b. response code: 204 (No Content)
 	c. response body: empty
-
+	d. decrement toFollowBoardOrder by one for cases following
+7. Create a GET endpoint that will allow users to retrieve a surgical case by surgeon
+	a. endpoint: /surgery/{surgeon}
+   	b. if found:
+		i. response code: 200 (OK)
+		ii. response body: a JSON object of surgical case
+   	c. if not found:
+		i. response code: 404 (Not Found)
+		ii. response body: "Surgeon not found"
